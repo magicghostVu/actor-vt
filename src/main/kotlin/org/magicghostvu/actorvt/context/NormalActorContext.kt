@@ -1,6 +1,8 @@
 package org.magicghostvu.actorvt.context
 
 import org.magicghostvu.actorvt.ActorRef
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.Future
 import java.util.concurrent.StructuredTaskScope
@@ -18,6 +20,10 @@ class NormalActorContext<Protocol> : ActorContext() {
 
     // thông báo khi bản thân bị kill tự nguyện
     // nếu bị parent kill thì không cần
+
+
+    private val logger: Logger = LoggerFactory.getLogger("actor-context")
+
     private val parent: ActorContext = TODO()
 
     private val lock = ReentrantLock(true)
@@ -32,7 +38,7 @@ class NormalActorContext<Protocol> : ActorContext() {
 
     private val actorSystem: ActorSystem = TODO()
 
-    private val messageQueue: BlockingQueue<Any> = TODO()
+    internal val messageQueue: BlockingQueue<Any> = TODO()
 
 
     // đại diện cho cái thread mà chạy logic cho cái msg này
@@ -46,6 +52,21 @@ class NormalActorContext<Protocol> : ActorContext() {
                 val msg = messageQueue.take()
                 // todo: do logic with msg
             }
+        }
+    }
+
+    // stop gracefully??
+
+    fun stopChild(childRef: ActorRef<*>) {
+        val childContext = nameToChild[childRef.name]
+        if (childContext != null) {
+            if (childContext === childRef.context) {
+                //todo: stop child
+            } else {
+                logger.error("actor {} not child of {}", childRef.path, this.self().path)
+            }
+        } else {
+            logger.debug("maybe child {} stopped before", childRef.path)
         }
     }
 
@@ -67,7 +88,6 @@ class NormalActorContext<Protocol> : ActorContext() {
                 }
                 nameToChild.clear()
                 active = false
-                self().active = false
                 job.cancel(true)
                 when (typeStop) {
                     TypeStop.FROM_PARENT -> {}
