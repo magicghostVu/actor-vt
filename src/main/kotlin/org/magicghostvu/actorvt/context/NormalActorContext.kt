@@ -18,8 +18,6 @@ class NormalActorContext<Protocol> : ActorContext() {
     // truyền vào behavior và trả ra ActorRef????
 
 
-    // thông báo khi bản thân bị kill tự nguyện
-    // nếu bị parent kill thì không cần
 
 
     private val logger: Logger = LoggerFactory.getLogger("actor-context")
@@ -36,7 +34,7 @@ class NormalActorContext<Protocol> : ActorContext() {
     }
 
 
-    private val actorSystem: ActorSystem = TODO()
+    internal val actorSystem: ActorSystem = TODO()
 
     internal val messageQueue: BlockingQueue<Any> = TODO()
 
@@ -46,22 +44,44 @@ class NormalActorContext<Protocol> : ActorContext() {
     private lateinit var job: Future<*>
 
 
+    // xem xét lưu lại thread id để ngăn chặn việc spawn hoặc kill child ở sai thread??
+
+
     init {
         job = actorSystem.threadPool.submit {
+            // gán thread id
             while (active) {
-                val msg = messageQueue.take()
+                val msg = try {
+                    messageQueue.take()
+                } catch (e: InterruptedException) {
+                    // job bị hủy từ phía parent
+                    stop(TypeStop.FROM_PARENT)
+                    active = false
+                    break
+                }
                 // todo: do logic with msg
+                try {
+                    // thực hiện các logic nhận msg ở đây
+                } catch (e: Exception) {
+                    // stop các con ở đây
+                    // ghi log
+                    stop(TypeStop.SELF)
+                    logger.error("err happened when actor ${self().path} process msg", e)
+                    throw e
+                }
             }
         }
     }
 
-    // stop gracefully??
+    //không cho phép stop gracefully
+    // nếu user muốn stop gracefully, hãy tự cài đặt
 
     fun stopChild(childRef: ActorRef<*>) {
         val childContext = nameToChild[childRef.name]
         if (childContext != null) {
             if (childContext === childRef.context) {
                 //todo: stop child
+                childContext.stop(TypeStop.FROM_PARENT)
             } else {
                 logger.error("actor {} not child of {}", childRef.path, this.self().path)
             }
@@ -72,7 +92,7 @@ class NormalActorContext<Protocol> : ActorContext() {
 
     // phải lock
     // có thể được gọi do 2 trường hợp
-    // 1. tự gọi trong trường hợp gặp stop() signal
+    // 1. tự gọi trong trường hợp gặp stop() signal hoặc crash khi xử lý msg/un-wrap behavior
     // 2. parent gọi stop các con
     internal fun stop(typeStop: TypeStop) {
         lock.withLock {
@@ -93,6 +113,12 @@ class NormalActorContext<Protocol> : ActorContext() {
                     TypeStop.FROM_PARENT -> {}
                     TypeStop.SELF -> {
                         //todo: thông báo cho parent là mình đã bị kill
+                        // hoặc trực tiếp remove mình khỏi map của parent??
+                        val self = self()
+                        val removed = parent.nameToChild.remove(self.name)
+                        if (removed == null) {
+                            logger.warn("child {} of {} may not be removed", self.name, self.path)
+                        }
                     }
                 }
             }

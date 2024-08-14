@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap
 sealed class ActorContext {
 
     // name -> child
-    protected val nameToChild: MutableMap<String, NormalActorContext<*>> = ConcurrentHashMap()
+    internal val nameToChild: MutableMap<String, NormalActorContext<*>> = ConcurrentHashMap()
 
 
     // expect func này chỉ được gọi trong actor thread
