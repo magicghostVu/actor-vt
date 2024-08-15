@@ -1,6 +1,6 @@
 package org.magicghostvu.actorvt.context.timer
 
-import org.magicghostvu.actorvt.context.NormalActorContext
+import org.magicghostvu.actorvt.context.GeneralActorContext
 import org.slf4j.LoggerFactory
 import java.util.concurrent.Future
 
@@ -8,7 +8,7 @@ import java.util.concurrent.Future
 //not thread-safe
 //các hàm của timerMandata phải được gọi bên trong actor
 class TimerManData<T> internal constructor(
-    private val context: NormalActorContext<T>
+    private val context: GeneralActorContext<T>
 ) {
     private val idToTimerData = mutableMapOf<Any, TimerData>()
     private val idToGeneration = mutableMapOf<Any, Int>()

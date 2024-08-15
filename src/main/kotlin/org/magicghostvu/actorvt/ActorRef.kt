@@ -1,20 +1,23 @@
 package org.magicghostvu.actorvt
 
 
-import org.magicghostvu.actorvt.context.NormalActorContext
+import org.magicghostvu.actorvt.context.GeneralActorContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class ActorRef<in Protocol>internal constructor() {
+class ActorRef<in Protocol> internal constructor(
+    val context: GeneralActorContext<@UnsafeVariance Protocol>,
+    val name: String,
+    val path: String
+) {
 
-
-    // full path
+    /*// full path
     internal lateinit var path: String;
 
     //cần thiết để lấy được context từ name khi check stop child actor
     internal lateinit var name: String
 
-    internal lateinit var context: NormalActorContext<@UnsafeVariance Protocol>;
+    internal lateinit var context: GeneralActorContext<@UnsafeVariance Protocol>;*/
 
     private val active: Boolean
         get() {

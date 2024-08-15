@@ -1,6 +1,6 @@
 package org.magicghostvu.actorvt.behavior
 
-import org.magicghostvu.actorvt.context.NormalActorContext
+import org.magicghostvu.actorvt.context.GeneralActorContext
 import org.magicghostvu.actorvt.context.timer.TimerManData
 
 object Behaviors {
@@ -14,7 +14,7 @@ object Behaviors {
     }
 
 
-    public fun <T> setUp(factory: (NormalActorContext<T>) -> Behavior<T>): Behavior<T> {
+    public fun <T> setUp(factory: (GeneralActorContext<T>) -> Behavior<T>): Behavior<T> {
         return SetUpBehavior(factory)
     }
 

@@ -10,7 +10,7 @@ sealed class ActorContext {
     internal abstract val path: String;
 
     // name -> child
-    internal val nameToChild: MutableMap<String, NormalActorContext<*>> = ConcurrentHashMap()
+    internal val refToChild: MutableMap<ActorRef<*>, GeneralActorContext<*>> = ConcurrentHashMap()
 
 
     // expect func này chỉ được gọi trong actor thread

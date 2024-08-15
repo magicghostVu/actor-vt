@@ -5,12 +5,12 @@ import org.jetbrains.annotations.NotNull;
 import org.magicghostvu.actorvt.behavior.AbstractBehavior;
 import org.magicghostvu.actorvt.behavior.Behavior;
 import org.magicghostvu.actorvt.behavior.Behaviors;
-import org.magicghostvu.actorvt.context.NormalActorContext;
+import org.magicghostvu.actorvt.context.GeneralActorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MyActor extends AbstractBehavior<MyMessage> {
-    public MyActor(@NotNull NormalActorContext<MyMessage> context) {
+    public MyActor(@NotNull GeneralActorContext<MyMessage> context) {
         super(context);
     }
 
