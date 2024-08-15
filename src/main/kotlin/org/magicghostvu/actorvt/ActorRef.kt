@@ -7,9 +7,9 @@ import org.slf4j.LoggerFactory
 
 class ActorRef<in Protocol> internal constructor(
     val context: GeneralActorContext<@UnsafeVariance Protocol>,
-    val name: String,
-    val path: String
+    val name: String
 ) {
+
 
     /*// full path
     internal lateinit var path: String;
@@ -18,6 +18,9 @@ class ActorRef<in Protocol> internal constructor(
     internal lateinit var name: String
 
     internal lateinit var context: GeneralActorContext<@UnsafeVariance Protocol>;*/
+
+    val path: String
+        get() = context.path
 
     private val active: Boolean
         get() {

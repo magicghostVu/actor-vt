@@ -22,7 +22,6 @@ class ActorSystem(private val rootPath: String = "/") : ActorContext() {
     override val path: String
         get() = rootPath
 
-    // check name exist
     override fun <Protocol> spawn(
         childName: String,
         queueCapacity: Int,
@@ -39,10 +38,7 @@ class ActorSystem(private val rootPath: String = "/") : ActorContext() {
                 queueCapacity
             )
             newContext.path = "${this.rootPath}/$childName"
-            val actorRef = ActorRef(newContext, childName, path)
-            /*actorRef.context = newContext
-            actorRef.name = childName
-            actorRef.path = newContext.path*/
+            val actorRef = ActorRef(newContext, childName)
             newContext.self = actorRef
             newContext.start(factory = behaviorFactory)
             refToChild[actorRef] = newContext

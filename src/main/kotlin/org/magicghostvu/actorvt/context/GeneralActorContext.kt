@@ -23,7 +23,7 @@ import kotlin.concurrent.withLock
 class GeneralActorContext<Protocol>(
     val actorSystem: ActorSystem,
     val parent: ActorContext,
-    val queueCapacity: Int
+    queueCapacity: Int
 ) : ActorContext() {
 
 
@@ -33,6 +33,7 @@ class GeneralActorContext<Protocol>(
 
     internal var active = true
 
+    // full path??
     override lateinit var path: String
 
 
@@ -41,6 +42,11 @@ class GeneralActorContext<Protocol>(
     internal val timerManData: TimerManData<Protocol>
 
     internal lateinit var self: ActorRef<Protocol>
+
+    val timer: TimerManData<Protocol>
+        get() {
+            return timerManData
+        }
 
     override fun <Protocol> spawn(
         childName: String,
@@ -54,7 +60,11 @@ class GeneralActorContext<Protocol>(
             }
             val childContext = GeneralActorContext<Protocol>(actorSystem, this, queueCapacity)
             childContext.path = "$path/$childName"
-            TODO()
+            val childRef = ActorRef(childContext, childName)
+            childContext.self = childRef
+            childContext.start(behaviorFactory)
+            refToChild[childRef] = childContext
+            childRef
         }
     }
 
@@ -75,7 +85,7 @@ class GeneralActorContext<Protocol>(
         if (queueCapacity <= 0) {
             throw IllegalArgumentException("queue capacity must be greater than 0")
         }
-        messageQueue = if (queueCapacity >= 1024) {
+        messageQueue = if (queueCapacity > 1024) {
             LinkedBlockingQueue()
         } else {
             ArrayBlockingQueue(queueCapacity)
@@ -133,8 +143,10 @@ class GeneralActorContext<Protocol>(
 
 
     private fun onMsgCome(msg: Any) {
+        //logger.debug("on internal receive {}", msg)
         val msgWillProcess: Protocol? = when (msg) {
             is SystemMsg -> {
+                //logger.debug("received system msg {}", msg)
                 when (msg) {
                     is DelayMsg<*> -> {
                         // check valid generation
@@ -170,7 +182,7 @@ class GeneralActorContext<Protocol>(
         if (msgWillProcess != null) {
             var newState = state.onReceive(msgWillProcess)
 
-            logger.debug("new state is {}", newState)
+            //logger.debug("new state is {}", newState)
 
             // check stop/same... ở đây
             if (newState === Behaviors.same<Protocol>()) {
@@ -178,7 +190,7 @@ class GeneralActorContext<Protocol>(
             }
 
             if (newState === Behaviors.stopped<Protocol>()) {
-                logger.debug("outside stop")
+                //logger.debug("outside stop")
                 stop(TypeStop.SELF)
                 return
             }
@@ -230,7 +242,7 @@ class GeneralActorContext<Protocol>(
         }
     }
 
-    // phải lock
+    // phải lock để không kill 2 lần
     // có thể được gọi do 2 trường hợp
     // 1. tự gọi trong trường hợp gặp stop() signal hoặc crash khi xử lý msg/un-wrap behavior
     // 2. parent gọi stop các con
@@ -262,7 +274,7 @@ class GeneralActorContext<Protocol>(
                         val self = self()
                         val removed = parent.refToChild.remove(self)
                         if (removed == null) {
-                            logger.debug("child {} of {} may not be removed", self.name, self.path)
+                            logger.debug("child {} of {} may be removed before", self.name, parent.path)
                         } else {
                             logger.debug("removed child {} of {}", self.name, parent.path)
                         }
@@ -272,9 +284,6 @@ class GeneralActorContext<Protocol>(
         }
     }
 
-
-    //phải có fsm ở đây,
-    // và một timer data
 
     fun self(): ActorRef<Protocol> = self
 }

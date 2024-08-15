@@ -1,6 +1,7 @@
 package org.magicghostvu.actorvt.context.timer
 
 import org.magicghostvu.actorvt.context.GeneralActorContext
+import org.magicghostvu.actorvt.context.msg.DelayMsg
 import org.slf4j.LoggerFactory
 import java.util.concurrent.Future
 
@@ -60,7 +61,7 @@ class TimerManData<T> internal constructor(
                 oldValue + 1
             }
         } ?: throw IllegalArgumentException("can not be here")
-        val messageToSend = DelayedMessage(
+        val messageToSend = DelayMsg(
             message,
             key,
             expectGeneration
@@ -91,7 +92,7 @@ class TimerManData<T> internal constructor(
                 oldValue + 1
             }
         } ?: throw IllegalArgumentException("can not be here")
-        val messageToSend = DelayedMessage(
+        val messageToSend = DelayMsg(
             message,
             key,
             expectGeneration
@@ -138,5 +139,3 @@ class TimerManData<T> internal constructor(
     }
 
 }
-
-internal data class DelayedMessage<T>(val message: T, val keyTimer: Any, val generationAtCreate: Int)

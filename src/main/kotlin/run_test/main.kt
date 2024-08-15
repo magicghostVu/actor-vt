@@ -1,5 +1,6 @@
 package run_test
 
+import org.magicghostvu.actorvt.context.ActorSystem
 import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors
 
@@ -14,25 +15,17 @@ fun main() {
 }
 
 fun _main() {
-    testInterrupt()
-    /*val logger = LoggerFactory.getLogger("common")
-    val c = StructuredTaskScope.ShutdownOnFailure()
-    val res = c.use {
-        val j1 = it.fork {
-            Thread.sleep(1500)
-            logger.info("thread id {}", Thread.currentThread().threadId())
-            1
-        }
+    val actorSystem = ActorSystem()
+    val actorRef = actorSystem.spawn(
+        "my-actor-1",
+        128,
+    ) {
+        MyActorVT.setup()
+    }
 
-        val j2 = it.fork {
-            Thread.sleep(1000)
-            logger.info("thread id {}", Thread.currentThread().threadId())
-            2
-        }
-        it.joinUntil(Instant.ofEpochMilli(System.currentTimeMillis() + 1600))
-        val j3 = j1.get() + j2.get()
-        j3
-    }*/
+
+    Thread.sleep(200_000)
+
 }
 
 fun testInterrupt() {

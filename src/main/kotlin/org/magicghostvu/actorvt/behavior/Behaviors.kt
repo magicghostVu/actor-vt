@@ -19,8 +19,8 @@ object Behaviors {
     }
 
 
-    public fun <T> withTimer(doWithTimer: (TimerManData<T>) -> Behavior<T>): Behavior<T> {
-        return TimerBehavior(doWithTimer)
+    public fun <T> withTimer(setupTimer: (TimerManData<T>) -> Behavior<T>): Behavior<T> {
+        return TimerBehavior(setupTimer)
     }
 
 
