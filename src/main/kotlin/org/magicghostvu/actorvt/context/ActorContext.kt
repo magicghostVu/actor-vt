@@ -1,8 +1,13 @@
 package org.magicghostvu.actorvt.context
 
+import org.magicghostvu.actorvt.ActorRef
+import org.magicghostvu.actorvt.behavior.Behavior
 import java.util.concurrent.ConcurrentHashMap
 
 sealed class ActorContext {
+
+
+    internal abstract val path: String;
 
     // name -> child
     internal val nameToChild: MutableMap<String, NormalActorContext<*>> = ConcurrentHashMap()
@@ -10,5 +15,11 @@ sealed class ActorContext {
 
     // expect func này chỉ được gọi trong actor thread
     // todo: re-design this method signature
-    abstract fun spawn(childName: String);
+    abstract fun <Protocol> spawn(
+        childName: String,
+        queueCapacity: Int,
+        behaviorFactory: () -> Behavior<Protocol>
+    ): ActorRef<Protocol>;
+
+    abstract fun stopChild(actorRef: ActorRef<*>);
 }

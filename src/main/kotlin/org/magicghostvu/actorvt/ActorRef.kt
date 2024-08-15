@@ -5,9 +5,8 @@ import org.magicghostvu.actorvt.context.NormalActorContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class ActorRef<in Protocol>() {
+class ActorRef<in Protocol>internal constructor() {
 
-    private val logger: Logger = LoggerFactory.getLogger("actor-ref")
 
     // full path
     internal lateinit var path: String;
@@ -22,15 +21,16 @@ class ActorRef<in Protocol>() {
             return context.active
         }
 
-    // chỉ để gửi vào nên sẽ safe
-    //internal lateinit var queue: BlockingQueue<@UnsafeVariance Protocol>
-
-
-    fun tell(message: Protocol & Any) {
+    // end user will use this
+    fun tell(message: Protocol) {
         if (active) {
-            context.messageQueue.put(message)
+            context.messageQueue.put(message as Any)
         } else {
             logger.warn("actor {} not active so can not send msg {}", path, message)
         }
+    }
+
+    private companion object {
+        private val logger: Logger = LoggerFactory.getLogger("actor-vt")
     }
 }

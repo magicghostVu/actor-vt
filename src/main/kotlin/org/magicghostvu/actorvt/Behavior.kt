@@ -1,4 +1,4 @@
 package org.magicghostvu.actorvt
 
-internal interface Behavior<in Protocol> {
+sealed interface Behavior<in Protocol> {
 }

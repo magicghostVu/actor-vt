@@ -5,9 +5,8 @@ import org.slf4j.LoggerFactory
 import java.util.concurrent.Future
 
 
-// not thread safe
-//các hàm phải được gọi bên trong actor
-
+//not thread-safe
+//các hàm của timerMandata phải được gọi bên trong actor
 class TimerManData<T> internal constructor(
     private val context: NormalActorContext<T>
 ) {
@@ -23,8 +22,8 @@ class TimerManData<T> internal constructor(
         return idToGeneration.containsKey(key)
     }
 
-    internal fun getCurrentGeneration(key: Any): Int {
-        return idToGeneration.getValue(key)
+    internal fun getCurrentGeneration(key: Any): Int? {
+        return idToGeneration[key]
     }
 
     internal fun removeKey(key: Any, cancelJob: Boolean) {
@@ -97,13 +96,11 @@ class TimerManData<T> internal constructor(
             key,
             expectGeneration
         )
-
         val job: Future<*> = context.actorSystem.threadPool.submit {
             if (initDelayMilli > 0) {
                 Thread.sleep(initDelayMilli)
             }
             while (true) {
-                //scope.channel.send(messageToSend)
                 context.messageQueue.put(messageToSend)
                 Thread.sleep(period)
             }

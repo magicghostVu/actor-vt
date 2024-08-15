@@ -1,8 +1,7 @@
 package run_test
 
 import org.slf4j.LoggerFactory
-import java.time.Instant
-import java.util.concurrent.StructuredTaskScope
+import java.util.concurrent.Executors
 
 fun main() {
     val vThread = Thread
@@ -15,7 +14,8 @@ fun main() {
 }
 
 fun _main() {
-    val logger = LoggerFactory.getLogger("common")
+    testInterrupt()
+    /*val logger = LoggerFactory.getLogger("common")
     val c = StructuredTaskScope.ShutdownOnFailure()
     val res = c.use {
         val j1 = it.fork {
@@ -32,5 +32,27 @@ fun _main() {
         it.joinUntil(Instant.ofEpochMilli(System.currentTimeMillis() + 1600))
         val j3 = j1.get() + j2.get()
         j3
+    }*/
+}
+
+fun testInterrupt() {
+    val logger = LoggerFactory.getLogger("common")
+    val pool = Executors.newVirtualThreadPerTaskExecutor()
+    pool.use {
+        val f1 = pool.submit {
+            try {
+                Thread.sleep(1200)
+                logger.info("never printed")
+            } catch (e: InterruptedException) {
+                logger.warn("interrupted", e)
+                throw e
+            }
+        }
+
+        pool.submit {
+            Thread.sleep(1500)
+            f1.cancel(true)
+        }
+
     }
 }
