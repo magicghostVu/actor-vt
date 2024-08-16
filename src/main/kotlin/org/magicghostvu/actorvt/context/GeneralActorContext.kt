@@ -21,8 +21,8 @@ import kotlin.concurrent.withLock
 // ở trong cha và ở trong ActorRef
 // mỗi một child này đại diện cho một actor
 class GeneralActorContext<Protocol>(
-    val actorSystem: ActorSystem,
-    val parent: ActorContext,
+    internal val actorSystem: ActorSystem,
+    internal val parent: ActorContext,
     queueCapacity: Int
 ) : ActorContext() {
 

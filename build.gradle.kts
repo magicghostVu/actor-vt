@@ -13,11 +13,11 @@ repositories {
 val log4jVersion = "2.17.2"
 dependencies {
     //testImplementation(kotlin("test"))
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion"){
+    /*implementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion"){
         exclude("org.slf4j", "slf4j-api")
-    }
+    }*/
     api("org.slf4j:slf4j-api:1.7.25")
-    implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
+    //implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
 }
 
 /*tasks.test {
@@ -50,7 +50,7 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = "org.magicghostvu"
             artifactId = "actor-vt"
-            version = "0.0.2-test"
+            version = "0.1.1"
             from(components["kotlin"])
             artifact(tasks["sourcesJar"])
         }
