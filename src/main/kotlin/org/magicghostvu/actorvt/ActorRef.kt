@@ -6,7 +6,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class ActorRef<in Protocol> internal constructor(
-    val context: GeneralActorContext<@UnsafeVariance Protocol>,
+    internal val context: GeneralActorContext<@UnsafeVariance Protocol>,
     val name: String
 ) {
 
