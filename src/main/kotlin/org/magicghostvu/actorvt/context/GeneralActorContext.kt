@@ -119,23 +119,18 @@ class GeneralActorContext<Protocol>(
                     // job bị hủy từ phía parent
                     //stop(TypeStop.FROM_PARENT)
                     active = false
-                    throw e
+                    continue
                 }
                 // todo: do logic with msg
                 try {
                     // thực hiện các logic nhận msg ở đây
                     onMsgCome(msg)
-                } catch (e: InterruptedException) {
-                    active = false
-                    //stop(TypeStop.FROM_PARENT)
-                    throw e
                 } catch (e: Exception) {
                     // stop các con ở đây
                     // ghi log
-                    active = false
                     stop(TypeStop.SELF)
                     logger.error("err happened when actor ${self().path} process msg", e)
-                    throw e
+                    continue
                 }
             }
         }
