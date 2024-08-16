@@ -4,7 +4,7 @@ import org.magicghostvu.actorvt.context.ActorSystem;
 import org.slf4j.LoggerFactory;
 
 public class MainJ {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws InterruptedException {
         System.setProperty("log4j.configurationFile", "./log4j2.xml");
         var t = Thread
                 .ofVirtual()

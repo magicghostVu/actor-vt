@@ -21,7 +21,6 @@ public class MyActor extends AbstractBehavior<MyMessage> {
     @Override
     public Behavior<MyMessage> onReceive(MyMessage message) {
         logger.info("path is {}", getContext().path);
-
         switch (message) {
             case ChildMsg1 m -> {
                 logger.info("received ChildMsg1");

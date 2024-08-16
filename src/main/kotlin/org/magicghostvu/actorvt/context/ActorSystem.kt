@@ -4,20 +4,36 @@ import org.magicghostvu.actorvt.ActorRef
 import org.magicghostvu.actorvt.behavior.Behavior
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 class ActorSystem(private val rootPath: String = "/") : ActorContext() {
 
+    private var useExternalThreadPool: Boolean = false
+    internal lateinit var threadPool: ExecutorService
+
+    constructor(threadPool: ExecutorService, rootPath: String) : this(rootPath) {
+        useExternalThreadPool = true
+        this.threadPool = threadPool
+    }
+
+    init {
+        if (!useExternalThreadPool) {
+            threadPool = Executors.newVirtualThreadPerTaskExecutor()
+        }
+    }
+
     private var active: Boolean = true
+
 
     private val lock = ReentrantLock()
 
     private val logger: Logger = LoggerFactory.getLogger("actor-system")
 
     // mỗi một actor con sẽ chạy trên một virtual thread
-    internal val threadPool = Executors.newVirtualThreadPerTaskExecutor();
+
 
     override val path: String
         get() = rootPath
@@ -59,7 +75,9 @@ class ActorSystem(private val rootPath: String = "/") : ActorContext() {
     fun destroy() {
         lock.withLock {
             if (active) {
-                threadPool.close()
+                if (!useExternalThreadPool) {
+                    threadPool.close()
+                }
                 active = false
             } else {
                 logger.warn("actor system destroyed before")
