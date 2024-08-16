@@ -5,22 +5,24 @@ import org.slf4j.LoggerFactory;
 
 public class MainJ {
     public static void main(String[] args) throws Exception {
+        System.setProperty("log4j.configurationFile", "./log4j2.xml");
         var t = Thread
                 .ofVirtual()
                 .name("_main")
-                .start(() -> _main(args));
+                .start(() -> {
+                    try {
+                        _main(args);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
         t.join();
         Thread.sleep(2000);
     }
 
-    public static void _main(String[] args) {
+    public static void _main(String[] args) throws InterruptedException {
         var logger = LoggerFactory.getLogger("actor-vt");
         logger.info("start");
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
         var actorSystem = new ActorSystem("p");
         // java-side use
         var actorRef = actorSystem.spawn(
@@ -28,31 +30,16 @@ public class MainJ {
                 100,
                 MyActor::setup
         );
-
         actorRef.tell(new ChildMsg1());
-        try {
-            Thread.sleep(1200);
-        } catch (Exception e) {
-            logger.error("err while sleep", e);
-            throw new RuntimeException(e);
-        }
+        Thread.sleep(1200);
         actorSystem.stopChild(actorRef);
-        try {
-            /*msg.repTo.get();
-            logger.info("actor die");*/
-
-            actorSystem.spawn(
-                    "child1",
-                    100,
-                    MyActor::setup
-            );
-
-            Thread.sleep(1000);
-        } catch (Exception e) {
-            logger.error("err while get result", e);
-        }
-
-        //actorRef.tell(new KillMyActor());
+        /*var ref2 = actorSystem.spawn(
+                "child1",
+                100,
+                MyActor::setup
+        );*/
+        //actorRef = null;
+        Thread.sleep(20_000);
         logger.info("done");
     }
 }

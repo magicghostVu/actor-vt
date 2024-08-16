@@ -25,22 +25,22 @@ public class MyActor extends AbstractBehavior<MyMessage> {
         switch (message) {
             case ChildMsg1 m -> {
                 logger.info("received ChildMsg1");
-                return Behaviors.INSTANCE.same();
+                return Behaviors.same();
             }
             case ChildMsg2 m -> {
                 logger.info("received ChildMsg2");
-                return Behaviors.INSTANCE.same();
+                return Behaviors.same();
             }
             case KillMyActor k -> {
                 logger.info("received KillMyActor");
                 k.repTo.complete(Unit.INSTANCE);
-                return Behaviors.INSTANCE.stopped();
+                return Behaviors.stopped();
             }
         }
     }
 
 
     public static Behavior<MyMessage> setup() {
-        return Behaviors.INSTANCE.setUp(MyActor::new);
+        return Behaviors.setUp(MyActor::new);
     }
 }
