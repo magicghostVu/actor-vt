@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "1.9.23"
+    id("maven-publish")
 }
 
 group = "org.magicghostvu"
@@ -24,4 +25,34 @@ dependencies {
 }*/
 kotlin {
     jvmToolchain(21)
+}
+
+java {
+    withSourcesJar()
+    //withJavadocJar()
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/magicghostVu/actor-vt")
+            credentials() {
+                username = "magicghostVu"
+                password = project.properties.getValue("deploy.token") as String
+            }
+            /*authentication {
+                create<HttpHeaderAuthentication>("header")
+            }*/
+        }
+    }
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "org.magicghostvu"
+            artifactId = "actor-vt"
+            version = "0.0.2-test"
+            from(components["kotlin"])
+            artifact(tasks["sourcesJar"])
+        }
+    }
 }
