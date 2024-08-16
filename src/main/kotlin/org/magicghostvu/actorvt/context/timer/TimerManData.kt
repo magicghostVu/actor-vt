@@ -69,7 +69,6 @@ class TimerManData<T> internal constructor(
 
         val job = context.actorSystem.threadPool.submit {
             Thread.sleep(delayMillis)
-            //logger.info("exe timer")
             context.messageQueue.put(
                 messageToSend
             )

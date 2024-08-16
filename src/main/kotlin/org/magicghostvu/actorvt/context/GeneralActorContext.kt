@@ -263,6 +263,7 @@ class GeneralActorContext<Protocol>(
                     refToChild.clear()
                 }
                 active = false
+                timer.cancelAll()
                 when (typeStop) {
                     TypeStop.FROM_PARENT -> {
                         job.cancel(true)
