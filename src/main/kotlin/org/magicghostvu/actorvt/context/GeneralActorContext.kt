@@ -60,7 +60,7 @@ class GeneralActorContext<Protocol>(
             }
             val childContext = GeneralActorContext<Protocol>(actorSystem, this, queueCapacity)
             childContext.path = "$path/$childName"
-            val childRef = ActorRef(childContext, childName)
+            val childRef = ActorRef(childName, childContext)
             childContext.self = childRef
             childContext.start(behaviorFactory)
             refToChild[childRef] = childContext
@@ -259,6 +259,8 @@ class GeneralActorContext<Protocol>(
                 }
                 active = false
                 timer.cancelAll()
+                // detach context khỏi self
+                self.context = null;
                 when (typeStop) {
                     TypeStop.FROM_PARENT -> {
                         job.cancel(true)

@@ -54,7 +54,7 @@ class ActorSystem(private val rootPath: String = "/") : ActorContext() {
                 queueCapacity
             )
             newContext.path = "${this.rootPath}/$childName"
-            val actorRef = ActorRef(newContext, childName)
+            val actorRef = ActorRef(childName, newContext)
             newContext.self = actorRef
             newContext.start(factory = behaviorFactory)
             refToChild[actorRef] = newContext

@@ -5,32 +5,27 @@ import org.magicghostvu.actorvt.context.GeneralActorContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+// nên cho context thành nullable để detach khỏi actor ref ngay sau khi actor bị stop??
+// ở cài đặt hiện tại nếu user có một actor đã bị xoá nhưng mà vẫn giữ ref thì data của actor đó vẫn còn trong memory
 class ActorRef<in Protocol> internal constructor(
-    internal val context: GeneralActorContext<@UnsafeVariance Protocol>,
-    val name: String
+    val name: String,
+    internal var context: GeneralActorContext<@UnsafeVariance Protocol>?,
 ) {
 
+    lateinit var path: String
 
-    /*// full path
-    internal lateinit var path: String;
-
-    //cần thiết để lấy được context từ name khi check stop child actor
-    internal lateinit var name: String
-
-    internal lateinit var context: GeneralActorContext<@UnsafeVariance Protocol>;*/
-
-    val path: String
-        get() = context.path
-
-    private val active: Boolean
-        get() {
-            return context.active
+    init {
+        val c = context
+        if (c != null) {
+            path = c.path
         }
+    }
 
     // end user will use this
     fun tell(message: Protocol) {
-        if (active) {
-            context.messageQueue.put(message as Any)
+        val c = context
+        if (c != null && c.active) {
+            c.messageQueue.put(message as Any)
         } else {
             logger.warn("actor {} not active so can not send msg {}", path, message)
         }
