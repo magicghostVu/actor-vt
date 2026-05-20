@@ -27,7 +27,13 @@ class ActorRef<in Protocol> internal constructor(
         if (c != null && c.active) {
             c.messageQueue.put(message as Any)
         } else {
-            logger.warn("actor {} not active so can not send msg {}", path, message)
+            val msg = String.format(
+                "actor %s with path %s not ready to receive msg(active %s)",
+                name,
+                context?.path,
+                context?.active
+            )
+            throw IllegalArgumentException(msg)
         }
     }
 
