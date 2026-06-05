@@ -36,16 +36,18 @@ public final class TimerManData<T> {
     // cancelJob=false — single-timer natural fire (called before onReceive so the
     //                   actor can restart the same key inside its handler).
     public void removeKey(Object key, boolean cancelJob) {
-        TimerData timerData = idToTimerData.remove(key);
+        TimerData timerData = idToTimerData.get(key);
         if (timerData != null && cancelJob) {
             timerData.job.cancel(true);
+            idToTimerData.remove(key);
         }
     }
 
     public TimerData startSingleTimer(Object key, T message, long delayMillis) {
-        TimerData existing = idToTimerData.remove(key);
+        final TimerData existing = idToTimerData.get(key);
         if (existing != null) {
             existing.job.cancel(true);
+            idToTimerData.remove(key);
         }
         int gen = nextGeneration++;
         var messageToSend = new DelayMsg<>(message, key, gen);
@@ -60,9 +62,10 @@ public final class TimerManData<T> {
     }
 
     public TimerData startFixedRateTimer(Object key, T message, long initDelayMillis, long period) {
-        TimerData existing = idToTimerData.remove(key);
+        TimerData existing = idToTimerData.get(key);
         if (existing != null) {
             existing.job.cancel(true);
+            idToTimerData.remove(key);
         }
         int gen = nextGeneration++;
         var messageToSend = new DelayMsg<>(message, key, gen);

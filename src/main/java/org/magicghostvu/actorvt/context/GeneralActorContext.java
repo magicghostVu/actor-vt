@@ -231,10 +231,11 @@ public final class GeneralActorContext<Protocol> extends ActorContext {
                 Future<?> j = job;
                 if (j != null) j.cancel(true);
             } else {
-                GeneralActorContext<?> removed = parent.refToChild.remove(selfRef);
+                GeneralActorContext<?> removed = parent.refToChild.get(selfRef);
                 if (removed == null) {
                     logger.debug("child {} of {} may have been removed before", selfRef.name, parent.getPath());
                 } else {
+                    parent.refToChild.remove(selfRef);
                     logger.debug("removed child {} of {}", selfRef.name, parent.getPath());
                 }
             }

@@ -59,8 +59,7 @@ tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs.add("-XDaddTypeAnnotationsToSymbol=true")
     options.errorprone {
         check("NullAway", CheckSeverity.ERROR)
-        option("NullAway:AnnotatedPackages", "org.magicghostvu.*")
-        option("NullAway:AnnotatedPackages", "test_with_java.*")
+        option("NullAway:AnnotatedPackages", "org.magicghostvu.actorvt.*")
     }
 }
 
