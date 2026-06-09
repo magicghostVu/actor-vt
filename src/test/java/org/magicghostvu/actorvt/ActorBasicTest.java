@@ -1,5 +1,6 @@
 package org.magicghostvu.actorvt;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -214,7 +215,7 @@ class ActorBasicTest {
 
     @Test
     void actorCrashStopsActor() throws Exception {
-        var ref = system.spawn("crashable", 32, () -> Behaviors.setUp(CrashableActor::new));
+        var ref = system.spawn("crashable", 32, () -> Behaviors.<CrashMsg>setUp(CrashableActor::new));
         ref.tell(new Crash());
         awaitStopped(ref);
         assertThrows(IllegalArgumentException.class,
@@ -229,7 +230,8 @@ class ActorBasicTest {
     record PingParent(CompletableFuture<String> reply) implements ParentMsg {}
 
     static class ParentActor extends AbstractBehavior<ParentMsg> {
-        @org.jspecify.annotations.Nullable ActorRef<CountMsg> child;
+        @Nullable
+        ActorRef<CountMsg> child;
 
         ParentActor(GeneralActorContext<ParentMsg> ctx) {
             super(ctx);

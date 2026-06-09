@@ -9,7 +9,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Supplier;
 
 public final class ActorSystem extends ActorContext {
 
@@ -45,7 +44,7 @@ public final class ActorSystem extends ActorContext {
     public <Protocol> ActorRef<Protocol> spawn(
             String childName,
             int queueCapacity,
-            Supplier<Behavior<Protocol>> behaviorFactory
+            ActorVTSupplier<Behavior<Protocol>> behaviorFactory
     ) {
         lock.lock();
         try {

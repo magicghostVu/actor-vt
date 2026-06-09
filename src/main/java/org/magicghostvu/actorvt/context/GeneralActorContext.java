@@ -5,7 +5,6 @@ import org.magicghostvu.actorvt.ActorRef;
 import org.magicghostvu.actorvt.behavior.*;
 import org.magicghostvu.actorvt.context.msg.DelayMsg;
 import org.magicghostvu.actorvt.context.msg.SystemMsg;
-import org.magicghostvu.actorvt.context.timer.PeriodicTimerData;
 import org.magicghostvu.actorvt.context.timer.SingleTimerData;
 import org.magicghostvu.actorvt.context.timer.TimerData;
 import org.magicghostvu.actorvt.context.timer.TimerManData;
@@ -15,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Supplier;
 
 public final class GeneralActorContext<Protocol> extends ActorContext {
 
@@ -65,7 +63,7 @@ public final class GeneralActorContext<Protocol> extends ActorContext {
     }
 
     @Override
-    public <P> ActorRef<P> spawn(String childName, int queueCapacity, Supplier<Behavior<P>> behaviorFactory) {
+    public <P> ActorRef<P> spawn(String childName, int queueCapacity, ActorVTSupplier<Behavior<P>> behaviorFactory) {
         lock.lock();
         try {
             ActorRef<Protocol> s = requireSelf();
@@ -94,7 +92,7 @@ public final class GeneralActorContext<Protocol> extends ActorContext {
         }
     }
 
-    void start(ActorRef<Protocol> self, Supplier<Behavior<Protocol>> factory) {
+    void start(ActorRef<Protocol> self, ActorVTSupplier<Behavior<Protocol>> factory) {
         this.self = self;
 
         Behavior<Protocol> initState = factory.get();
@@ -228,7 +226,7 @@ public final class GeneralActorContext<Protocol> extends ActorContext {
             selfRef.context = null;
 
             if (typeStop == TypeStop.FROM_PARENT) {
-                Future<?> j = job;
+                final Future<?> j = job;
                 if (j != null) j.cancel(true);
             } else {
                 GeneralActorContext<?> removed = parent.refToChild.get(selfRef);

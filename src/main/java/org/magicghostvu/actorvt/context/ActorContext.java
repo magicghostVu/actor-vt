@@ -4,7 +4,6 @@ import org.magicghostvu.actorvt.ActorRef;
 import org.magicghostvu.actorvt.behavior.Behavior;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
 
 public sealed abstract class ActorContext permits ActorSystem, GeneralActorContext {
 
@@ -15,7 +14,7 @@ public sealed abstract class ActorContext permits ActorSystem, GeneralActorConte
     public abstract <Protocol> ActorRef<Protocol> spawn(
             String childName,
             int queueCapacity,
-            Supplier<Behavior<Protocol>> behaviorFactory
+            ActorVTSupplier<Behavior<Protocol>> behaviorFactory
     );
 
     public abstract void stopChild(ActorRef<?> actorRef);
