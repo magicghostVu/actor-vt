@@ -32,7 +32,7 @@ This is a Java 21 actor framework library (`actor-vt`) built on virtual threads.
 
 **`ActorSystem`** — root of the hierarchy. Entry point for spawning top-level actors. Call `destroy()` to shut down; this stops all children before shutting down the thread pool (important: without stopping children first, threads block forever on `messageQueue.take()`).
 
-**`ActorRef<T>`** — typed handle to an actor. `tell(msg)` enqueues a message. `context` field goes `null` when the actor stops — callers check this to detect termination.
+**`ActorRef<T>`** — typed handle to an actor. `tell(msg)` enqueues a message (blocks if the queue is full; throws if interrupted). `trySend(msg)` is the non-blocking variant — uses `offer()` and returns `false` if the queue is full, instead of blocking. Both throw `IllegalArgumentException` if the actor is not active. `context` field goes `null` when the actor stops — callers check this to detect termination.
 
 **`ActorContext`** (sealed: `ActorSystem | GeneralActorContext`) — common parent for the actor hierarchy. Each actor context holds a `refToChild` map tracking its children.
 
@@ -43,6 +43,22 @@ This is a Java 21 actor framework library (`actor-vt`) built on virtual threads.
 **`AbstractBehavior<T>`** — extend this to write actors. Implement `onReceive(T msg)` returning the next behavior.
 
 **`TimerManData<T>`** — timer manager accessed via `context.getTimer()`. Supports `startSingleTimer`, `startFixedRateTimer`, and `cancel`. Each timer registration gets a unique generation stamp (`nextGeneration++`) stored on `TimerData`; stale `DelayMsg` entries in the queue are dropped by checking `findTimerData(key) == null` (cancelled) or `current.generation != delayMsg.generation()` (restarted with same key). **Not thread-safe** — all timer calls must happen on the actor's own thread (inside `onReceive` or the behavior factory).
+
+### Package structure
+
+```
+org.magicghostvu.actorvt              ActorRef
+  behavior/                           Behavior (sealed), AbstractBehavior, Behaviors,
+                                        Same, Stopped, SetUpBehavior, TimerBehavior,
+                                        ActorVTFunc
+  context/                            ActorContext (sealed), ActorSystem,
+                                        GeneralActorContext, ActorVTSupplier, TypeStop
+    msg/                              DelayMsg, SystemMsg
+    timer/                            TimerManData, TimerData,
+                                        SingleTimerData, PeriodicTimerData
+```
+
+`ActorVTFunc` and `ActorVTSupplier` are internal `@FunctionalInterface` types (analogues of `Function` and `Supplier`). `TypeStop`, `DelayMsg`, and `SystemMsg` are internal implementation details.
 
 ### Behavior factory pattern
 

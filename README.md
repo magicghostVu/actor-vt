@@ -16,7 +16,7 @@ The library exposes SLF4J as an API dependency. Add a logging implementation (e.
 | Concept | Description |
 |---|---|
 | `ActorSystem` | Root of the actor hierarchy. Create once, destroy on shutdown. |
-| `ActorRef<T>` | Typed handle to an actor. The only way to send messages (`tell`). |
+| `ActorRef<T>` | Typed handle to an actor. Send messages via `tell` (blocking) or `trySend` (non-blocking). |
 | `AbstractBehavior<T>` | Extend this to write an actor. Implement `onReceive` to handle messages. |
 | `Behaviors` | Factory class for creating `Behavior` values returned from `onReceive`. |
 | `GeneralActorContext<T>` | Live context of a running actor. Available as `context` inside `AbstractBehavior`. Used to spawn children, access timers, and get `self()`. |
@@ -68,6 +68,17 @@ system.destroy();
 
 ---
 
+## Package structure
+
+| Package | Public types |
+|---|---|
+| `org.magicghostvu.actorvt` | `ActorRef<T>` |
+| `org.magicghostvu.actorvt.behavior` | `Behavior<T>`, `AbstractBehavior<T>`, `Behaviors`, `Same<T>`, `Stopped<T>`, `SetUpBehavior<T>`, `TimerBehavior<T>` |
+| `org.magicghostvu.actorvt.context` | `ActorContext`, `ActorSystem`, `GeneralActorContext<T>` |
+| `org.magicghostvu.actorvt.context.timer` | `TimerManData<T>`, `TimerData<T>` |
+
+---
+
 ## API reference
 
 ### `ActorSystem`
@@ -97,7 +108,8 @@ Obtained from `spawn`. Hold and share freely — it is thread-safe.
 
 | Member | Description |
 |---|---|
-| `tell(T message)` | Enqueues a message. Throws `IllegalArgumentException` if the actor has stopped. |
+| `tell(T message)` | Enqueues a message. Blocks if the queue is full. Throws `IllegalArgumentException` if the actor has stopped. |
+| `trySend(T message)` | Non-blocking send. Returns `false` if the queue is full instead of blocking. Throws `IllegalArgumentException` if the actor has stopped. |
 | `name` | The name given at spawn time. |
 | `path` | Full hierarchical path (e.g., `/parent/child`). |
 | `context` | `null` when the actor has stopped. Useful for polling termination. |

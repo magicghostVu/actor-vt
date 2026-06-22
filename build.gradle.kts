@@ -94,9 +94,8 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = "org.magicghostvu"
             artifactId = "actor-vt"
-            version = "0.1.2"
+            version = "0.2"
             from(components["java"])
-            artifact(tasks["sourcesJar"])
         }
     }
 }
