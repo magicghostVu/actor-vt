@@ -33,4 +33,18 @@ public final class ActorRef<T> {
                     name, path, c != null ? c.active : "null"));
         }
     }
+
+    public boolean trySend(T message) {
+        GeneralActorContext<T> c = context;
+        if (c != null && c.active) {
+            try {
+                return c.messageQueue.offer(message);
+            } catch (IllegalStateException ie) {
+                return false;
+            }
+        } else throw new IllegalArgumentException(String.format(
+                "actor %s with path %s not ready to receive msg (active: %s)",
+                name, path, c != null ? c.active : "null"));
+
+    }
 }

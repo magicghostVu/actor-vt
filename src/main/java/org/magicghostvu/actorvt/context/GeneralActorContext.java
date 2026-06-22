@@ -128,13 +128,12 @@ public final class GeneralActorContext<Protocol> extends ActorContext {
         Protocol msgWillProcess;
 
         if (msg instanceof SystemMsg) {
-            if (msg instanceof DelayMsg<?> delayMsg) {
-                Object key = delayMsg.key();
+            if (msg instanceof DelayMsg<?>(Object msg1, Object key, int generation)) {
                 TimerData current = timerManData.findTimerData(key);
                 if (current == null) {
                     logger.debug("this key {} had been cancelled before", key);
                     msgWillProcess = null;
-                } else if (current.generation != delayMsg.generation()) {
+                } else if (current.generation != generation) {
                     logger.debug("this key {} is overridden by another timer", key);
                     msgWillProcess = null;
                 } else {
@@ -142,7 +141,7 @@ public final class GeneralActorContext<Protocol> extends ActorContext {
                         timerManData.removeKey(key, false);
                     }
                     @SuppressWarnings("unchecked")
-                    Protocol typedMsg = (Protocol) delayMsg.msg();
+                    Protocol typedMsg = (Protocol) msg1;
                     msgWillProcess = typedMsg;
                 }
             } else {
